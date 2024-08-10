@@ -8,8 +8,8 @@ function IDKitVerification() {
 
   const handleSuccess = (result) => {
     console.log("Verification successful:", result);
-    // Redirect to the desired page on success
-    navigate("/"); // Replace with your desired path
+
+    navigate("/");
   };
 
   const handleError = (error) => {
@@ -44,12 +44,12 @@ function IDKitVerification() {
           features of our DeFi platform.
         </Text>
         <IDKitWidget
-          app_id="app_staging_9fca8326d13d278cca10590318aec952" // Replace with your actual App ID from the Developer Portal
-          action="DeF" // Replace with your action name
-          signal="user_vote" // Replace with the relevant signal (optional)
-          onSuccess={handleSuccess} // Function to handle success
-          onError={handleError} // Function to handle errors (optional)
-          verification_level="device" // Minimum verification level, defaults to "orb"
+          app_id="app_staging_9fca8326d13d278cca10590318aec952"
+          action="DeF"
+          signal="user_vote"
+          onSuccess={handleSuccess}
+          onError={handleError}
+          verification_level="device"
         >
           {({ open }) => (
             <Button
