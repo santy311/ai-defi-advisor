@@ -102,12 +102,52 @@ app.get("/api/price-history/:token", async (req, res) => {
   }
 });
 
+// Helper function to determine if a transaction is a "whale" transaction
+const isWhaleTransaction = (transaction, threshold) => {
+  const value = parseFloat(transaction.value);
+  return value >= threshold;
+};
+
+const largeTransactions = [];
+
 // API route to fetch whale alerts
-app.get("/api/whale-alerts/:token", async (req, res) => {
-  const { token } = req.params;
+app.get("/api/whale-alerts/:block", async (req, res) => {
+  const { block } = req.params;
   try {
-    // Logic to fetch whale alerts based on the token
-    const largeTransactions = []; // Fill this with whale alert data
+    // Define what constitutes a "whale" transaction
+
+    if (largeTransactions.length > 0) {
+      res.json({ transactions: largeTransactions });
+      return;
+    }
+
+    const lastBlocks = 100;
+    const whaleThreshold = 100000000000000000000; // Example threshold, adjust based on the token's units
+    const blockNumber = 20494714;
+    for (let i = blockNumber; i > blockNumber - lastBlocks; i--) {
+      const blockscoutAPIUrl = `https://eth.blockscout.com/api/v2/blocks/${i}/transactions`;
+
+      try {
+        const response = await axios.get(blockscoutAPIUrl);
+
+        console.log("blockNumber " + i);
+        if (response.data && response.data.items) {
+          const transactions = response.data.items;
+
+          // Filter for large transactions
+          const filteredTransactions = transactions.filter((tx) =>
+            isWhaleTransaction(tx, whaleThreshold)
+          );
+
+          largeTransactions.push(...filteredTransactions);
+        } else {
+          throw new Error("Invalid response from Blockscout API");
+        }
+      } catch (error) {
+        console.error(`Error fetching transactions for block ${i}:`, error);
+      }
+    }
+
     res.json({ transactions: largeTransactions });
   } catch (error) {
     console.error("Error fetching whale alerts:", error);

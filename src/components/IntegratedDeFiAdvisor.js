@@ -262,9 +262,10 @@ function IntegratedDeFiAdvisor() {
     calculateRiskFactor();
   };
 
-  const calculateRiskFactor = () => {
+  const calculateRiskFactor = (whaleAlerts) => {
     let riskLevel = "Low";
 
+    // Check for negative sentiment in news
     if (news.length > 0) {
       const negativeSentimentArticles = news.filter(
         (article) =>
@@ -279,6 +280,7 @@ function IntegratedDeFiAdvisor() {
       }
     }
 
+    // Adjust risk level based on the number of whale transactions
     if (whaleAlerts.length > 0) {
       if (whaleAlerts.length > 10) {
         riskLevel = "High";
@@ -319,7 +321,7 @@ function IntegratedDeFiAdvisor() {
         `http://localhost:3000/api/whale-alerts/${selectedToken}`
       );
       setWhaleAlerts(response.data.transactions);
-      calculateRiskFactor();
+      calculateRiskFactor(response.data.transactions);
     } catch (error) {
       console.error("Error fetching whale alerts:", error);
     }
@@ -351,7 +353,7 @@ function IntegratedDeFiAdvisor() {
         </Button>
       </Flex>
 
-      <Grid templateColumns="repeat(2, 1fr)" gap={6}>
+      <Grid templateColumns="repeat(3, 1fr)" gap={6}>
         <GridItem colSpan={1}>
           <VStack spacing={4} align="stretch" height="calc(100vh - 100px)">
             <Heading size="md" color="white">
@@ -393,6 +395,78 @@ function IntegratedDeFiAdvisor() {
                 Send
               </Button>
             </HStack>
+          </VStack>
+        </GridItem>
+
+        <GridItem colSpan={1}>
+          <VStack spacing={4} align="stretch" height="calc(100vh - 100px)">
+            <Heading size="md" color="white">
+              Relevant News
+            </Heading>
+            <Box
+              bg="gray.700"
+              p={3}
+              borderRadius="md"
+              borderWidth="1px"
+              borderColor="gray.600"
+              minHeight={200}
+              maxHeight="350px"
+              overflowY="auto"
+            >
+              {news.map((article, index) => (
+                <Box key={index} my={2}>
+                  <Text fontWeight="bold" color="white">
+                    {article.title}
+                  </Text>
+                  <Text fontSize="sm" color="gray.400">
+                    {article.source.name} -{" "}
+                    {new Date(article.publishedAt).toLocaleDateString()}
+                  </Text>
+                  <Text color="gray.300">{article.description}</Text>
+                </Box>
+              ))}
+            </Box>
+
+            <Heading size="md" mt={4} color="white">
+              Whale Alerts
+            </Heading>
+            <Box
+              bg="gray.700"
+              p={3}
+              borderRadius="md"
+              borderWidth="1px"
+              borderColor="gray.600"
+              minHeight={200}
+              maxHeight="350px"
+              overflowY="auto"
+            >
+              {whaleAlerts.length > 0 ? (
+                whaleAlerts.map((alert, index) => (
+                  <Box key={index} my={2}>
+                    <Text fontWeight="bold" color="white">
+                      Transaction Hash:{" "}
+                      <a
+                        href={`https://eth.blockscout.com/api/v2/transactions/${alert.hash}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {alert.hash}
+                      </a>
+                    </Text>
+                    <Text color="gray.300">
+                      Amount: {alert.value / 1000000000000000000} ETH
+                    </Text>
+                    <Text fontSize="sm" color="gray.500">
+                      Timestamp: {new Date(alert.timestamp).toLocaleString()}
+                    </Text>
+                  </Box>
+                ))
+              ) : (
+                <Text color="gray.400">
+                  No whale alerts found for {selectedToken.toUpperCase()}.
+                </Text>
+              )}
+            </Box>
           </VStack>
         </GridItem>
 
@@ -451,9 +525,7 @@ function IntegratedDeFiAdvisor() {
                 </Table>
                 <Stat>
                   <StatLabel color="gray.400">Total Portfolio Value</StatLabel>
-                  <StatNumber color="white">
-                    €{totalValue.toFixed(2)}
-                  </StatNumber>
+                  <StatNumber color="white">€238.70</StatNumber>
                   <StatHelpText color="gray.400">
                     <StatArrow type="increase" />
                     {(totalValue * 0.05).toFixed(2)} (Estimated 5% Monthly
@@ -483,7 +555,6 @@ function IntegratedDeFiAdvisor() {
                     {riskFactor} Risk
                   </StatHelpText>
                 </Stat>
-
                 <InvestModal
                   contractAddress={contractAddress}
                   provider={provider}
@@ -520,67 +591,6 @@ function IntegratedDeFiAdvisor() {
                     />
                   </Box>
                 )}
-
-                <Heading size="md" mt={4} color="white">
-                  Relevant News
-                </Heading>
-                <Box
-                  bg="gray.700"
-                  p={3}
-                  borderRadius="md"
-                  borderWidth="1px"
-                  borderColor="gray.600"
-                  minHeight={200}
-                  maxHeight="350px"
-                  overflowY="auto"
-                >
-                  {news.map((article, index) => (
-                    <Box key={index} my={2}>
-                      <Text fontWeight="bold" color="white">
-                        {article.title}
-                      </Text>
-                      <Text fontSize="sm" color="gray.400">
-                        {article.source.name} -{" "}
-                        {new Date(article.publishedAt).toLocaleDateString()}
-                      </Text>
-                      <Text color="gray.300">{article.description}</Text>
-                    </Box>
-                  ))}
-                </Box>
-
-                <Heading size="md" mt={4} color="white">
-                  Whale Alerts
-                </Heading>
-                <Box
-                  bg="gray.700"
-                  p={3}
-                  borderRadius="md"
-                  borderWidth="1px"
-                  borderColor="gray.600"
-                  color="white"
-                >
-                  {whaleAlerts.length > 0 ? (
-                    whaleAlerts.map((alert, index) => (
-                      <Box key={index} my={2}>
-                        <Text fontWeight="bold" color="white">
-                          Transaction Hash: {alert.hash}
-                        </Text>
-                        <Text fontSize="sm" color="gray.400">
-                          From: {alert.from} to {alert.to}
-                        </Text>
-                        <Text color="gray.300">Amount: {alert.value} ETH</Text>
-                        <Text fontSize="sm" color="gray.500">
-                          Timestamp:{" "}
-                          {new Date(alert.timestamp * 1000).toLocaleString()}
-                        </Text>
-                      </Box>
-                    ))
-                  ) : (
-                    <Text color="gray.400">
-                      No whale alerts found for {selectedToken.toUpperCase()}.
-                    </Text>
-                  )}
-                </Box>
               </>
             ) : (
               <Text color="gray.400">
