@@ -340,7 +340,7 @@ function IntegratedDeFiAdvisor() {
     <Box p={4} bg="gray.900">
       <Flex justifyContent="space-between" alignItems="center" mb={4}>
         <Heading size="lg" color="white">
-          DeFi Advisor
+          Defidvisor
         </Heading>
         <Button
           onClick={connectWallet}

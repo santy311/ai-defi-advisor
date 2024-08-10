@@ -26,9 +26,18 @@ function IDKitVerification() {
       bgGradient="linear(to-r, teal.400, blue.500)"
       color="white"
     >
-      <VStack spacing={6} maxW="md" mx="auto" textAlign="center">
+      <VStack spacing={10} maxW="md" mx="auto" textAlign="center">
+        <Heading as="h1" size="xl"></Heading>
+        <Heading as="h1" size="xl"></Heading>
+        <Heading as="h1" size="xl"></Heading>
+        <Heading as="h1" size="xl"></Heading>
+        <Heading as="h1" size="xl"></Heading>
+        <Heading as="h1" size="xl"></Heading>
+        <Heading as="h1" size="xl"></Heading>
+        <Heading as="h1" size="xl"></Heading>
+        <Heading as="h1" size="xl"></Heading>
         <Heading as="h1" size="xl">
-          World ID Verification
+          Defidvisor ID Verification
         </Heading>
         <Text fontSize="lg" maxW="sm">
           Securely verify your identity with World ID to access exclusive
